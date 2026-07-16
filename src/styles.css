@@ -1,0 +1,229 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  --font-display: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Beland brand */
+  --color-beland-green: var(--beland-green);
+  --color-beland-green-deep: var(--beland-green-deep);
+  --color-beland-orange: var(--beland-orange);
+  --color-beland-yellow: var(--beland-yellow);
+  --color-beland-red: var(--beland-red);
+  --color-beland-ink: var(--beland-ink);
+  --color-beland-cream: var(--beland-cream);
+  --color-neon-green: var(--neon-green);
+  --color-neon-orange: var(--neon-orange);
+  --color-tech-blue: var(--tech-blue);
+}
+
+:root {
+  --radius: 1rem;
+
+  --background: oklch(0.99 0.003 90);
+  --foreground: oklch(0.18 0.02 160);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.02 160);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.02 160);
+  --primary: oklch(0.62 0.17 155);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.96 0.02 90);
+  --secondary-foreground: oklch(0.18 0.02 160);
+  --muted: oklch(0.95 0.01 100);
+  --muted-foreground: oklch(0.45 0.02 160);
+  --accent: oklch(0.72 0.19 55);
+  --accent-foreground: oklch(0.99 0 0);
+  --destructive: oklch(0.62 0.23 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.9 0.01 100);
+  --input: oklch(0.9 0.01 100);
+  --ring: oklch(0.62 0.17 155);
+
+  /* Beland brand tokens */
+  --beland-green: oklch(0.68 0.17 152);          /* vibrant eco green */
+  --beland-green-deep: oklch(0.48 0.14 155);
+  --beland-orange: oklch(0.72 0.19 52);          /* energetic orange */
+  --beland-yellow: oklch(0.88 0.17 92);          /* BeCoin yellow */
+  --beland-red: oklch(0.65 0.22 25);             /* candy red */
+  --beland-ink: oklch(0.16 0.02 160);
+  --beland-cream: oklch(0.985 0.005 95);
+  --neon-green: oklch(0.86 0.24 145);
+  --neon-orange: oklch(0.78 0.22 50);
+  --tech-blue: oklch(0.28 0.09 250);
+}
+
+.dark {
+  --background: oklch(0.12 0.02 160);
+  --foreground: oklch(0.98 0.005 95);
+  --card: oklch(0.16 0.02 160);
+  --card-foreground: oklch(0.98 0.005 95);
+  --popover: oklch(0.16 0.02 160);
+  --popover-foreground: oklch(0.98 0.005 95);
+  --primary: oklch(0.86 0.24 145);
+  --primary-foreground: oklch(0.12 0.02 160);
+  --secondary: oklch(0.22 0.02 160);
+  --secondary-foreground: oklch(0.98 0.005 95);
+  --muted: oklch(0.22 0.02 160);
+  --muted-foreground: oklch(0.7 0.02 160);
+  --accent: oklch(0.78 0.22 50);
+  --accent-foreground: oklch(0.12 0.02 160);
+  --destructive: oklch(0.65 0.22 25);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.86 0.24 145);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html { scroll-behavior: smooth; }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.02em; font-weight: 800; }
+}
+
+/* --- Custom utilities --- */
+
+@utility text-gradient-eco {
+  background-image: linear-gradient(120deg, var(--beland-green), var(--beland-orange) 60%, var(--beland-red));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility text-gradient-neon {
+  background-image: linear-gradient(120deg, var(--neon-green), var(--neon-orange));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility bg-cream {
+  background-color: var(--beland-cream);
+}
+
+@utility shadow-glow-green {
+  box-shadow: 0 20px 60px -20px color-mix(in oklab, var(--beland-green) 55%, transparent);
+}
+
+@utility shadow-glow-orange {
+  box-shadow: 0 20px 60px -20px color-mix(in oklab, var(--beland-orange) 60%, transparent);
+}
+
+@utility shadow-glow-neon {
+  box-shadow: 0 0 40px color-mix(in oklab, var(--neon-green) 55%, transparent),
+              0 0 80px color-mix(in oklab, var(--neon-orange) 30%, transparent);
+}
+
+@utility wavy-divider {
+  background-image: radial-gradient(circle at 1px 1px, color-mix(in oklab, var(--beland-green) 40%, transparent) 1px, transparent 0);
+  background-size: 22px 22px;
+}
+
+@utility marquee-track {
+  animation: marquee 30s linear infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-14px) rotate(3deg); }
+}
+
+@utility animate-float {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+@keyframes blob {
+  0%, 100% { border-radius: 42% 58% 63% 37% / 40% 45% 55% 60%; }
+  50% { border-radius: 58% 42% 37% 63% / 55% 60% 40% 45%; }
+}
+
+@utility animate-blob {
+  animation: blob 12s ease-in-out infinite;
+}
+
+@keyframes caret-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@utility typing-caret {
+  &::after {
+    content: "";
+    display: inline-block;
+    width: 3px;
+    height: 0.9em;
+    margin-left: 4px;
+    background: currentColor;
+    vertical-align: -0.1em;
+    animation: caret-blink 1s steps(1) infinite;
+  }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.9); opacity: 0.9; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+@utility pulse-ring {
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: 0 0 0 2px currentColor;
+    animation: pulse-ring 2.2s ease-out infinite;
+  }
+}
+
+@utility reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+@utility reveal-in {
+  opacity: 1;
+  transform: none;
+}
