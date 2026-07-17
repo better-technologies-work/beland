@@ -11,6 +11,7 @@ import {
   Coins,
   CreditCard,
   Egg,
+  FastForward,
   Globe2,
   Leaf,
   Mail,
@@ -20,6 +21,7 @@ import {
   Pause,
   Play,
   Recycle,
+  Rewind,
   Rocket,
   Sparkles,
   Store,
@@ -824,13 +826,81 @@ function Badge({
   );
 }
 
+import Player from "@vimeo/player";
+
 /* ------------------------------ Movement (dark) ------------------------------ */
+
+const VIMEO_ID = "1210901029";
 
 function Movement() {
   const { t } = useI18n();
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const playerRef = useRef<Player | null>(null);
+  const [playing, setPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const player = new Player(containerRef.current, {
+      id: Number(VIMEO_ID),
+      loop: true,
+      muted: true,
+      autoplay: true,
+      controls: false,
+      responsive: true,
+    });
+    playerRef.current = player;
+
+    player.getDuration().then(setDuration);
+    player.on("timeupdate", (data) => setCurrentTime(data.seconds));
+    player.on("play", () => setPlaying(true));
+    player.on("pause", () => setPlaying(false));
+
+    return () => {
+      player.destroy();
+      playerRef.current = null;
+    };
+  }, []);
+
+  const toggle = () => {
+    const p = playerRef.current;
+    if (!p) return;
+    p.getPaused().then((paused) => {
+      if (paused) {
+        p.setMuted(false);
+        p.play();
+      } else {
+        p.pause();
+      }
+    });
+  };
+
+  const skip = (secs: number) => {
+    const p = playerRef.current;
+    if (!p) return;
+    p.getCurrentTime().then((t) => {
+      const next = Math.min(Math.max(t + secs, 0), duration || t + secs);
+      p.setCurrentTime(next);
+    });
+  };
+
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const time = Number(e.target.value);
+    playerRef.current?.setCurrentTime(time);
+    setCurrentTime(time);
+  };
+
+  const formatTime = (t: number) => {
+    if (!isFinite(t)) return "0:00";
+    const m = Math.floor(t / 60);
+    const s = Math.floor(t % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+  };
+
   return (
     <section id="movement" className="relative overflow-hidden bg-black py-24 text-white md:py-32">
-      {/* festival background */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,color-mix(in_oklab,var(--neon-green)_35%,transparent),transparent_50%),radial-gradient(circle_at_80%_60%,color-mix(in_oklab,var(--neon-orange)_35%,transparent),transparent_50%)]" />
         <div className="absolute inset-0 opacity-30 mix-blend-screen wavy-divider" />
@@ -851,28 +921,53 @@ function Movement() {
           </Reveal>
         </div>
 
-        {/* cinematic video placeholder */}
         <Reveal delay={140}>
           <div className="relative mx-auto mt-12 overflow-hidden rounded-3xl border border-white/10 shadow-glow-neon">
             <div className="relative aspect-[21/9] w-full bg-gradient-to-br from-neutral-900 via-black to-neutral-900">
-              {/* crowd silhouette bars */}
-              <div className="absolute inset-x-0 bottom-0 flex h-1/2 items-end justify-center gap-1 px-4 opacity-70">
-                {Array.from({ length: 60 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-2 rounded-t bg-gradient-to-t from-neon-green to-neon-orange"
-                    style={{ height: `${20 + Math.sin(i * 0.6) * 40 + Math.random() * 30}%` }}
-                  />
-                ))}
-              </div>
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,black_100%)]" />
+              <div ref={containerRef} className="absolute inset-0 h-full w-full [&>iframe]:h-full [&>iframe]:w-full" />
+
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,black_100%)] pointer-events-none" />
               <div className="absolute left-6 top-6 flex items-center gap-2 rounded-full bg-black/60 px-3 py-1 text-xs font-bold uppercase tracking-widest text-neon-green backdrop-blur">
                 <span className="h-2 w-2 rounded-full bg-neon-green animate-pulse" />
                 {t("movement.live")}
               </div>
-              <button className="absolute left-1/2 top-1/2 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-black shadow-2xl transition hover:scale-110">
-                <Play className="h-8 w-8 translate-x-0.5" fill="currentColor" />
+              <button
+                onClick={toggle}
+                className="absolute left-1/2 top-1/2 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-black shadow-2xl transition hover:scale-110"
+              >
+                {playing ? (
+                  <Pause className="h-8 w-8" fill="currentColor" />
+                ) : (
+                  <Play className="h-8 w-8 translate-x-0.5" fill="currentColor" />
+                )}
               </button>
+
+              <div className="absolute inset-x-0 bottom-0 flex items-center gap-3 bg-black/60 px-4 py-3 backdrop-blur">
+                <button onClick={() => skip(-10)} className="text-white transition hover:scale-110">
+                  <Rewind className="h-5 w-5" fill="currentColor" />
+                </button>
+                <button onClick={toggle} className="text-white transition hover:scale-110">
+                  {playing ? (
+                    <Pause className="h-5 w-5" fill="currentColor" />
+                  ) : (
+                    <Play className="h-5 w-5" fill="currentColor" />
+                  )}
+                </button>
+                <button onClick={() => skip(10)} className="text-white transition hover:scale-110">
+                  <FastForward className="h-5 w-5" fill="currentColor" />
+                </button>
+                <span className="text-xs font-semibold text-white/70 tabular-nums">{formatTime(currentTime)}</span>
+                <input
+                  type="range"
+                  min={0}
+                  max={duration || 0}
+                  step={0.1}
+                  value={currentTime}
+                  onChange={handleSeek}
+                  className="h-1.5 flex-1 accent-neon-green"
+                />
+                <span className="text-xs font-semibold text-white/70 tabular-nums">{formatTime(duration)}</span>
+              </div>
             </div>
           </div>
         </Reveal>
@@ -899,7 +994,6 @@ function Movement() {
     </section>
   );
 }
-
 /* ------------------------------ Guinness ------------------------------ */
 
 function Guinness() {
