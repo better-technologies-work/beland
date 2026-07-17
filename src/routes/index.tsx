@@ -525,12 +525,12 @@ function PillarCard({
 
 function Products() {
   const { t } = useI18n();
- const cards = [
+const cards = [
     { key: "1", tone: "yellow", icon: <Egg className="h-8 w-8" />, tag: "Highlight", videoSrc: "/huevos.mp4" },
-    { key: "2", tone: "orange", icon: <Sparkles className="h-8 w-8" />, tag: "New", videoSrc: undefined },
-    { key: "3", tone: "red", icon: <Sparkles className="h-8 w-8" />, tag: "Origin", videoSrc: undefined },
-    { key: "4", tone: "green", icon: <Sparkles className="h-8 w-8" />, tag: "Artisan", videoSrc: undefined },
-    { key: "5", tone: "orange", icon: <Sparkles className="h-8 w-8" />, tag: "Seasonal", videoSrc: undefined },
+    { key: "2", tone: "orange", icon: <Sparkles className="h-8 w-8" />, tag: "Próximamente", videoSrc: undefined },
+    { key: "3", tone: "red", icon: <Sparkles className="h-8 w-8" />, tag: "Próximamente", videoSrc: undefined },
+    { key: "4", tone: "green", icon: <Sparkles className="h-8 w-8" />, tag: "Próximamente", videoSrc: undefined },
+    { key: "5", tone: "orange", icon: <Sparkles className="h-8 w-8" />, tag: "Próximamente", videoSrc: undefined },
   ] as const;
   return (
     <section id="products" className="relative py-24 md:py-32">
