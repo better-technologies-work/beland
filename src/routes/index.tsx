@@ -16,6 +16,7 @@ import {
   Music2,
   Package,
   PartyPopper,
+  Pause,
   Play,
   Recycle,
   Rocket,
@@ -27,8 +28,8 @@ import {
   Zap,
 } from "lucide-react";
 import { LANGS, useI18n, type Lang } from "@/lib/i18n";
-import belandLogo from "@/assets/beland-logo.png.asset.json";
-import betterTechLogo from "@/assets/better-tech.png.asset.json";
+import belandLogo from "@/assets/beland-logo.png";
+import betterTechLogo from "@/assets/better-tech.png";
 
 export const Route = createFileRoute("/")({
   component: Landing,
@@ -123,7 +124,7 @@ function Navbar() {
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3">
         <a href="#top" className="flex items-center gap-2">
-          <img src={belandLogo.url} alt="Beland" className="h-8 w-auto" />
+          <img src={belandLogo} alt="Beland" className="h-8 w-auto" />
         </a>
         <div className="hidden items-center gap-1 md:flex">
           {items.map((it) => (
@@ -524,12 +525,12 @@ function PillarCard({
 
 function Products() {
   const { t } = useI18n();
-  const cards = [
-    { key: "1", tone: "yellow", icon: <Egg className="h-8 w-8" />, tag: "Highlight" },
-    { key: "2", tone: "orange", icon: <Sparkles className="h-8 w-8" />, tag: "New" },
-    { key: "3", tone: "red", icon: <Sparkles className="h-8 w-8" />, tag: "Origin" },
-    { key: "4", tone: "green", icon: <Sparkles className="h-8 w-8" />, tag: "Artisan" },
-    { key: "5", tone: "orange", icon: <Sparkles className="h-8 w-8" />, tag: "Seasonal" },
+ const cards = [
+    { key: "1", tone: "yellow", icon: <Egg className="h-8 w-8" />, tag: "Highlight", videoSrc: "/huevos.mp4" },
+    { key: "2", tone: "orange", icon: <Sparkles className="h-8 w-8" />, tag: "New", videoSrc: undefined },
+    { key: "3", tone: "red", icon: <Sparkles className="h-8 w-8" />, tag: "Origin", videoSrc: undefined },
+    { key: "4", tone: "green", icon: <Sparkles className="h-8 w-8" />, tag: "Artisan", videoSrc: undefined },
+    { key: "5", tone: "orange", icon: <Sparkles className="h-8 w-8" />, tag: "Seasonal", videoSrc: undefined },
   ] as const;
   return (
     <section id="products" className="relative py-24 md:py-32">
@@ -558,6 +559,7 @@ function Products() {
                 tone={c.tone}
                 tag={c.tag}
                 icon={c.icon}
+                videoSrc={c.videoSrc}
                 title={t(`products.card${c.key}.title`)}
                 body={t(`products.card${c.key}.body`)}
                 highlight={i === 0}
@@ -577,6 +579,7 @@ function ProductCard({
   icon,
   tone,
   highlight,
+  videoSrc,
 }: {
   title: string;
   body: string;
@@ -584,28 +587,64 @@ function ProductCard({
   icon: React.ReactNode;
   tone: "green" | "orange" | "yellow" | "red";
   highlight?: boolean;
+  videoSrc?: string;
 }) {
   const { t } = useI18n();
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [playing, setPlaying] = useState(false);
   const grad = {
     green: "from-beland-green to-beland-green-deep",
     orange: "from-beland-orange to-beland-red",
     yellow: "from-beland-yellow to-beland-orange",
     red: "from-beland-red to-beland-orange",
   }[tone];
+
+  const toggle = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.paused) {
+      v.muted = false;
+      v.play();
+      setPlaying(true);
+    } else {
+      v.pause();
+      setPlaying(false);
+    }
+  };
+
   return (
     <article
       className={`group relative w-[300px] shrink-0 overflow-hidden rounded-3xl border border-black/5 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-2xl md:w-[340px] ${
         highlight ? "ring-2 ring-beland-orange" : ""
       }`}
     >
-      {/* video thumbnail */}
-      <div className={`relative aspect-[4/5] w-full bg-gradient-to-br ${grad}`}>
-        <div className="absolute inset-0 opacity-30 mix-blend-overlay wavy-divider" />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-white/90 drop-shadow-lg">{icon}</div>
-        </div>
-        <button className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-beland-ink shadow-xl transition group-hover:scale-110">
-          <Play className="h-6 w-6 translate-x-0.5" fill="currentColor" />
+      <div className={`relative aspect-[4/5] w-full overflow-hidden bg-gradient-to-br ${grad}`}>
+        {videoSrc ? (
+          <video
+            ref={videoRef}
+            src={videoSrc}
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <>
+            <div className="absolute inset-0 opacity-30 mix-blend-overlay wavy-divider" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-white/90 drop-shadow-lg">{icon}</div>
+            </div>
+          </>
+        )}
+        <button
+          onClick={videoSrc ? toggle : undefined}
+          className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-beland-ink shadow-xl transition group-hover:scale-110"
+        >
+          {videoSrc && playing ? (
+            <Pause className="h-6 w-6" fill="currentColor" />
+          ) : (
+            <Play className="h-6 w-6 translate-x-0.5" fill="currentColor" />
+          )}
         </button>
         <div className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-beland-ink">
           {tag}
@@ -628,6 +667,23 @@ function ProductCard({
 
 function Stations() {
   const { t } = useI18n();
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [playing, setPlaying] = useState(true);
+
+  const toggle = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.paused) {
+      v.muted = false;
+      v.play();
+      setPlaying(true);
+    } else {
+      v.pause();
+      setPlaying(false);
+    }
+  };
+  
+
   return (
     <section id="stations" className="relative overflow-hidden bg-cream py-24 md:py-32">
       <div className="wavy-divider absolute inset-x-0 top-0 h-16 opacity-60" />
@@ -636,24 +692,31 @@ function Stations() {
         <div className="lg:col-span-5">
           <Reveal>
             <div className="relative mx-auto w-[280px] rounded-[2.5rem] border-[10px] border-beland-ink bg-beland-ink shadow-2xl">
-              <div className="relative aspect-[9/16] overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-beland-orange via-beland-red to-beland-orange">
-                <div className="absolute inset-0 opacity-40 mix-blend-overlay wavy-divider" />
-                {/* smiling face silhouette */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="relative h-28 w-28 rounded-full bg-white/90 shadow-2xl">
-                    <div className="absolute left-6 top-9 h-2 w-2 rounded-full bg-beland-ink" />
-                    <div className="absolute right-6 top-9 h-2 w-2 rounded-full bg-beland-ink" />
-                    <div className="absolute bottom-6 left-1/2 h-3 w-10 -translate-x-1/2 rounded-b-full border-b-[3px] border-beland-ink" />
-                  </div>
-                </div>
+             <div className="relative aspect-[9/16] overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-beland-orange via-beland-red to-beland-orange">
+                <video
+                  ref={videoRef}
+                  src="/maquina.mp4"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
                 <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-white">
                   <span className="flex items-center gap-1.5 rounded-full bg-black/40 px-2.5 py-1 text-[10px] font-bold backdrop-blur">
                     <span className="h-1.5 w-1.5 rounded-full bg-beland-red animate-pulse" />
                     {t("stations.videoLabel")}
                   </span>
-                  <span className="rounded-full bg-white text-beland-ink flex h-9 w-9 items-center justify-center shadow">
-                    <Play className="h-4 w-4 translate-x-0.5" fill="currentColor" />
-                  </span>
+                  <button
+                    onClick={toggle}
+                    className="rounded-full bg-white text-beland-ink flex h-9 w-9 items-center justify-center shadow transition hover:scale-110"
+                  >
+                    {playing ? (
+                      <Pause className="h-4 w-4" fill="currentColor" />
+                    ) : (
+                      <Play className="h-4 w-4 translate-x-0.5" fill="currentColor" />
+                    )}
+                  </button>
                 </div>
               </div>
             </div>
@@ -991,7 +1054,7 @@ function Trojan() {
               <ArrowUpRight className="h-4 w-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </a>
             <img
-              src={betterTechLogo.url}
+              src={betterTechLogo}
               alt="Better Technologies"
               className="h-12 w-auto opacity-80 transition hover:opacity-100"
             />
@@ -1010,7 +1073,7 @@ function Footer() {
     <footer className="border-t border-black/5 bg-cream py-14">
       <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 px-5 md:flex-row md:items-center">
         <div className="flex items-center gap-4">
-          <img src={belandLogo.url} alt="Beland" className="h-9 w-auto" />
+          <img src={belandLogo} alt="Beland" className="h-9 w-auto" />
           <span className="text-sm font-semibold text-beland-ink/60">{t("footer.tag")}</span>
         </div>
         <div className="flex flex-col items-start gap-2 md:items-end">
