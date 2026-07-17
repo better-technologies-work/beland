@@ -13,6 +13,7 @@ import {
   Egg,
   Globe2,
   Leaf,
+  Mail,
   Music2,
   Package,
   PartyPopper,
@@ -78,11 +79,10 @@ function LangSwitcher() {
                   setLang(l.code as Lang);
                   setOpen(false);
                 }}
-                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm transition ${
-                  active
+                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm transition ${active
                     ? "bg-beland-green/10 font-bold text-beland-green-deep"
                     : "text-beland-ink hover:bg-black/5"
-                }`}
+                  }`}
               >
                 <span className="text-base">{l.flag}</span>
                 <span className="flex-1">{l.label}</span>
@@ -95,7 +95,57 @@ function LangSwitcher() {
     </div>
   );
 }
+function CtaMenu({
+  mailto,
+  calendarUrl,
+  label,
+  icon,
+  triggerClassName,
+}: {
+  mailto: string;
+  calendarUrl: string;
+  label: string;
+  icon: React.ReactNode;
+  triggerClassName: string;
+}) {
+  const [open, setOpen] = useState(false);
 
+  useEffect(() => {
+    const close = () => setOpen(false);
+    if (open) {
+      window.addEventListener("click", close);
+      return () => window.removeEventListener("click", close);
+    }
+  }, [open]);
+
+  return (
+    <div className="relative inline-block" onClick={(e) => e.stopPropagation()}>
+      <button type="button" onClick={() => setOpen((v) => !v)} className={triggerClassName}>
+        {icon} {label}
+        <ChevronDown className={`h-4 w-4 transition ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="absolute left-1/2 z-50 mt-2 w-60 -translate-x-1/2 origin-top animate-scale-in rounded-2xl border border-black/10 bg-white p-1.5 shadow-2xl">
+          
+           <a href={mailto}
+            className="flex items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold text-beland-ink transition hover:bg-black/5"
+          >
+            <Mail className="h-4 w-4" /> Enviar email
+          </a>
+          
+           <a href={calendarUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold text-beland-ink transition hover:bg-black/5"
+          >
+            <CalendarClock className="h-4 w-4" /> Agendar una llamada
+          </a>
+        </div>
+  )
+}
+    </div >
+  );
+}
 /* -------------------------------- Navbar --------------------------------- */
 
 function Navbar() {
@@ -118,9 +168,8 @@ function Navbar() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-40 transition-all duration-300 ${
-        scrolled ? "backdrop-blur-xl bg-white/70 border-b border-black/5" : "bg-transparent"
-      }`}
+      className={`fixed inset-x-0 top-0 z-40 transition-all duration-300 ${scrolled ? "backdrop-blur-xl bg-white/70 border-b border-black/5" : "bg-transparent"
+        }`}
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3">
         <a href="#top" className="flex items-center gap-2">
@@ -525,7 +574,7 @@ function PillarCard({
 
 function Products() {
   const { t } = useI18n();
-const cards = [
+  const cards = [
     { key: "1", tone: "yellow", icon: <Egg className="h-8 w-8" />, tag: "Highlight", videoSrc: "/huevos.mp4" },
     { key: "2", tone: "orange", icon: <Sparkles className="h-8 w-8" />, tag: "Próximamente", videoSrc: undefined },
     { key: "3", tone: "red", icon: <Sparkles className="h-8 w-8" />, tag: "Próximamente", videoSrc: undefined },
@@ -614,9 +663,8 @@ function ProductCard({
 
   return (
     <article
-      className={`group relative w-[300px] shrink-0 overflow-hidden rounded-3xl border border-black/5 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-2xl md:w-[340px] ${
-        highlight ? "ring-2 ring-beland-orange" : ""
-      }`}
+      className={`group relative w-[300px] shrink-0 overflow-hidden rounded-3xl border border-black/5 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-2xl md:w-[340px] ${highlight ? "ring-2 ring-beland-orange" : ""
+        }`}
     >
       <div className={`relative aspect-[4/5] w-full overflow-hidden bg-gradient-to-br ${grad}`}>
         {videoSrc ? (
@@ -682,7 +730,7 @@ function Stations() {
       setPlaying(false);
     }
   };
-  
+
 
   return (
     <section id="stations" className="relative overflow-hidden bg-cream py-24 md:py-32">
@@ -692,7 +740,7 @@ function Stations() {
         <div className="lg:col-span-5">
           <Reveal>
             <div className="relative mx-auto w-[280px] rounded-[2.5rem] border-[10px] border-beland-ink bg-beland-ink shadow-2xl">
-             <div className="relative aspect-[9/16] overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-beland-orange via-beland-red to-beland-orange">
+              <div className="relative aspect-[9/16] overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-beland-orange via-beland-red to-beland-orange">
                 <video
                   ref={videoRef}
                   src="/maquina.mp4"
@@ -879,13 +927,13 @@ function Guinness() {
               <p className="mt-6 max-w-2xl text-lg text-white/75">{t("guinness.copy")}</p>
             </Reveal>
             <Reveal delay={220}>
-              <a
-                href="mailto:sponsors@beland.world"
-                className="mt-8 inline-flex items-center gap-2 rounded-full border-2 border-neon-green px-6 py-3.5 text-base font-black text-neon-green transition hover:bg-neon-green hover:text-black hover:shadow-glow-neon"
-              >
-                <Rocket className="h-5 w-5" /> {t("guinness.cta")}
-                <ArrowUpRight className="h-4 w-4" />
-              </a>
+              <CtaMenu
+                mailto="mailto:diegoe.beland@gmail.com"
+                calendarUrl="https://calendar.app.google/74Sc4peRwuJ3eJ8W7"
+                label={t("guinness.cta")}
+                icon={<Rocket className="h-5 w-5" />}
+                triggerClassName="mt-8 inline-flex items-center gap-2 rounded-full border-2 border-neon-green px-6 py-3.5 text-base font-black text-neon-green transition hover:bg-neon-green hover:text-black hover:shadow-glow-neon"
+              />
             </Reveal>
           </div>
           <div className="md:col-span-4">
@@ -941,12 +989,13 @@ function Hub() {
               ))}
             </ul>
             <Reveal delay={280}>
-              <a
-                href="mailto:hub@beland.world"
-                className="mt-8 inline-flex items-center gap-2 rounded-full bg-beland-green px-6 py-3.5 text-base font-black text-white shadow-glow-green transition hover:brightness-110"
-              >
-                <Store className="h-5 w-5" /> {t("hub.cta")}
-              </a>
+              <CtaMenu
+                mailto="mailto:diegoe.beland@gmail.com"
+                calendarUrl="https://calendar.app.google/74Sc4peRwuJ3eJ8W7"
+                label={t("hub.cta")}
+                icon={<Store className="h-5 w-5" />}
+                triggerClassName="mt-8 inline-flex items-center gap-2 rounded-full bg-beland-green px-6 py-3.5 text-base font-black text-white shadow-glow-green transition hover:brightness-110"
+              />
             </Reveal>
           </div>
 
