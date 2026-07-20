@@ -227,3 +227,11 @@
   opacity: 1;
   transform: none;
 }
+@layer base {
+  .vimeo-fill iframe {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+}

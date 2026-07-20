@@ -82,8 +82,8 @@ function LangSwitcher() {
                   setOpen(false);
                 }}
                 className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm transition ${active
-                    ? "bg-beland-green/10 font-bold text-beland-green-deep"
-                    : "text-beland-ink hover:bg-black/5"
+                  ? "bg-beland-green/10 font-bold text-beland-green-deep"
+                  : "text-beland-ink hover:bg-black/5"
                   }`}
               >
                 <span className="text-base">{l.flag}</span>
@@ -128,14 +128,14 @@ function CtaMenu({
       </button>
       {open && (
         <div className="absolute left-1/2 z-50 mt-2 w-60 -translate-x-1/2 origin-top animate-scale-in rounded-2xl border border-black/10 bg-white p-1.5 shadow-2xl">
-          
-           <a href={mailto}
+
+          <a href={mailto}
             className="flex items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold text-beland-ink transition hover:bg-black/5"
           >
             <Mail className="h-4 w-4" /> Enviar email
           </a>
-          
-           <a href={calendarUrl}
+
+          <a href={calendarUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold text-beland-ink transition hover:bg-black/5"
@@ -143,8 +143,8 @@ function CtaMenu({
             <CalendarClock className="h-4 w-4" /> Agendar una llamada
           </a>
         </div>
-  )
-}
+      )
+      }
     </div >
   );
 }
@@ -836,7 +836,8 @@ function Movement() {
   const { t } = useI18n();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<Player | null>(null);
-  const [playing, setPlaying] = useState(false);
+  const [playing, setPlaying] = useState(true);
+  const [muted, setMuted] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
@@ -849,14 +850,16 @@ function Movement() {
       muted: true,
       autoplay: true,
       controls: false,
-      responsive: true,
     });
     playerRef.current = player;
 
-    player.getDuration().then(setDuration);
+    player.ready().then(() => {
+      player.getDuration().then(setDuration);
+    });
     player.on("timeupdate", (data) => setCurrentTime(data.seconds));
     player.on("play", () => setPlaying(true));
     player.on("pause", () => setPlaying(false));
+    player.on("volumechange", (data: { volume: number }) => setMuted(data.volume === 0));
 
     return () => {
       player.destroy();
@@ -867,14 +870,13 @@ function Movement() {
   const toggle = () => {
     const p = playerRef.current;
     if (!p) return;
-    p.getPaused().then((paused) => {
-      if (paused) {
-        p.setMuted(false);
-        p.play();
-      } else {
-        p.pause();
-      }
-    });
+    if (muted) {
+      p.setVolume(1);
+      p.setMuted(false);
+      if (!playing) p.play();
+      return;
+    }
+    playing ? p.pause() : p.play();
   };
 
   const skip = (secs: number) => {
@@ -923,9 +925,8 @@ function Movement() {
 
         <Reveal delay={140}>
           <div className="relative mx-auto mt-12 overflow-hidden rounded-3xl border border-white/10 shadow-glow-neon">
-            <div className="relative aspect-[21/9] w-full bg-gradient-to-br from-neutral-900 via-black to-neutral-900">
-              <div ref={containerRef} className="absolute inset-0 h-full w-full [&>iframe]:h-full [&>iframe]:w-full" />
-
+            <div className="relative aspect-[9/16] max-w-sm mx-auto w-full bg-gradient-to-br from-neutral-900 via-black to-neutral-900">
+              <div ref={containerRef} className="vimeo-fill absolute inset-0 h-full w-full" />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,black_100%)] pointer-events-none" />
               <div className="absolute left-6 top-6 flex items-center gap-2 rounded-full bg-black/60 px-3 py-1 text-xs font-bold uppercase tracking-widest text-neon-green backdrop-blur">
                 <span className="h-2 w-2 rounded-full bg-neon-green animate-pulse" />
