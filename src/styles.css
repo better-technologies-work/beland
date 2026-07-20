@@ -228,10 +228,15 @@
   transform: none;
 }
 @layer base {
+  .vimeo-fill {
+    overflow: hidden; /* recorta cualquier sobrante */
+  }
   .vimeo-fill iframe {
     position: absolute !important;
     inset: 0 !important;
     width: 100% !important;
     height: 100% !important;
+    object-fit: cover !important;
+   
   }
 }

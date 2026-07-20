@@ -840,6 +840,16 @@ function Movement() {
   const [muted, setMuted] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [aspectRatio, setAspectRatio] = useState<number | null>(null); // width/height
+
+  useEffect(() => {
+    fetch(`https://vimeo.com/api/oembed.json?url=https://vimeo.com/${VIMEO_ID}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.width && data.height) setAspectRatio(data.width / data.height);
+      })
+      .catch(() => { });
+  }, []);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -853,9 +863,13 @@ function Movement() {
     });
     playerRef.current = player;
 
-    player.ready().then(() => {
-      player.getDuration().then(setDuration);
+    player.ready().then(async () => {
+      const [w, h] = await Promise.all([player.getVideoWidth(), player.getVideoHeight()]);
+      console.log("Vimeo dimensions:", w, h);
+      if (w && h) setAspectRatio(w / h);
+      setDuration(await player.getDuration());
     });
+
     player.on("timeupdate", (data) => setCurrentTime(data.seconds));
     player.on("play", () => setPlaying(true));
     player.on("pause", () => setPlaying(false));
@@ -924,8 +938,11 @@ function Movement() {
         </div>
 
         <Reveal delay={140}>
-          <div className="relative mx-auto mt-12 overflow-hidden rounded-3xl border border-white/10 shadow-glow-neon">
-            <div className="relative aspect-[9/16] max-w-sm mx-auto w-full bg-gradient-to-br from-neutral-900 via-black to-neutral-900">
+          <div className="relative mx-auto mt-12 w-full max-w-sm overflow-hidden rounded-3xl border border-white/10 shadow-glow-neon">
+            <div
+              className="relative w-full bg-gradient-to-br from-neutral-900 via-black to-neutral-900"
+              style={{ aspectRatio: aspectRatio ?? 9 / 16 }}
+            >
               <div ref={containerRef} className="vimeo-fill absolute inset-0 h-full w-full" />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,black_100%)] pointer-events-none" />
               <div className="absolute left-6 top-6 flex items-center gap-2 rounded-full bg-black/60 px-3 py-1 text-xs font-bold uppercase tracking-widest text-neon-green backdrop-blur">
@@ -934,13 +951,10 @@ function Movement() {
               </div>
               <button
                 onClick={toggle}
-                className="absolute left-1/2 top-1/2 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-black shadow-2xl transition hover:scale-110"
+                className={`absolute left-1/2 top-1/2 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-black shadow-2xl transition-all duration-300 hover:scale-110 ${playing ? "pointer-events-none opacity-0" : "opacity-100"
+                  }`}
               >
-                {playing ? (
-                  <Pause className="h-8 w-8" fill="currentColor" />
-                ) : (
-                  <Play className="h-8 w-8 translate-x-0.5" fill="currentColor" />
-                )}
+                <Play className="h-8 w-8 translate-x-0.5" fill="currentColor" />
               </button>
 
               <div className="absolute inset-x-0 bottom-0 flex items-center gap-3 bg-black/60 px-4 py-3 backdrop-blur">
